@@ -90,7 +90,7 @@ function displayMood(moods,channel,statsMessage) {
                 .setImage(`attachment://graph-${dateString}.png`)
                 .setColor("#f9c405")
                 .setFooter({
-                    text: "il y a X personne hereuse"
+                    text: "il y a "+ mood.moods.happy.count + " personne hereuse"
                 })
                 .setTimestamp();
 
