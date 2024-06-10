@@ -10,7 +10,7 @@ module.exports = {
 		if (interaction.customId.startsWith('button1')) {
 			const id = interaction.customId.split('--')[1];
 			await interaction.reply({ 
-				content: `le système de vote et de liéson discord>bob n'est pas encore implémenté et est prévu pour dans le futur. Merci de votre compréhension`,
+				content: `le système de vote et de liaison discord>bob n'est pas encore implémenté et est prévu pour dans le futur. Merci de votre compréhension`,
 				ephemeral: true
 			});
 		}
