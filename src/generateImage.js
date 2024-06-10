@@ -14,7 +14,14 @@ async function drawHumeur(humeur, type){
     ctx.fillStyle = "#2d3146"
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     //dessine l'emoji
-    const img = await Canvas.loadImage(emoji[type]);
+    let img
+    try {
+        let url = type
+        if (emoji[type]) url = emoji[type]
+        img = await Canvas.loadImage(url);
+    } catch (error) {
+        return "urlError"
+    }
     ctx.drawImage(img, 50, 50, 100, 100);
     ctx.font = `300 30px OpenSans`;
     ctx.fillStyle =  "white"
