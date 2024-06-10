@@ -9,6 +9,30 @@ module.exports = {
 		if (!interaction.isButton()) return;
 		if (interaction.customId.startsWith('button1')) {
 			const id = interaction.customId.split('--')[1];
+			if (id === 'demo') {
+				//ajoute 1 au conteur
+				//update le message
+				let message = await interaction.fetchReply();
+				let components = message.components;
+				let vote = components.label.split('×')[1];
+				await interaction.update({
+					components: [
+						{
+							type: 1,
+							components: [
+								{
+									type: 2,
+									style: 4,
+									emoji: {
+										name: '🩷'
+									},
+									label: '×' + (parseInt(vote) + 1),
+									custom_id: 'button1--demo'
+								}
+							]
+						}
+					]
+				});
 			await interaction.reply({ 
 				content: `le système de vote et de liaison discord>bob n'est pas encore implémenté et est prévu pour dans le futur. Merci de votre compréhension`,
 				ephemeral: true
