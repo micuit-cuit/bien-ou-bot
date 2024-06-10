@@ -5,7 +5,7 @@ module.exports = {
         .setName('humeur')
         .addStringOption(option =>
             option.setName('humeur')
-                .setDescription('Votre humeur, happy, neutral, sad')
+                .setDescription('Votre humeur, happy, neutral, sad ou une url d\'image (mal suporter)')
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('message')
@@ -15,12 +15,20 @@ module.exports = {
             option.setName('vote')
                 .setDescription('Votre vote')
                 .setRequired(true))
-        .setDescription('Replies with Pong!'),
+        .setDescription('Affiche votre humeur'),
     async execute(interaction) {
         const msg = interaction.options.getString('message')
         const humeur = interaction.options.getString('humeur')
         const vote = interaction.options.getInteger('vote')
+        if (humeur !== 'happy' && humeur !== 'neutral' && humeur !== 'sad') {
+            await interaction.reply({ content: 'Votre humeur doit être happy, neutral ou sad', ephemeral: true });
+            return;
+        }
         const buffer = await drawHumeur(msg,humeur)
+        if (buffer === "urlError") {
+            await interaction.reply({ content: 'L\'url de l\'image n\'est pas valide', ephemeral: true });
+            return;
+        }
         const attachment = new AttachmentBuilder(buffer, 'profile-image.png');
         await interaction.reply({
             files: [attachment],
@@ -35,7 +43,7 @@ module.exports = {
                                 name: '🩷'
                             },
                             label: '×'+vote,
-                            custom_id: 'button1--vm0FTo8BV3R9VUb5xLbP'
+                            custom_id: 'button1--demo'
                         }
                     ]
                 }
