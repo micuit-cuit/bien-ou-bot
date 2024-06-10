@@ -33,11 +33,12 @@ module.exports = {
 						}
 					]
 				});
+			}
 			await interaction.reply({ 
 				content: `le système de vote et de liaison discord>bob n'est pas encore implémenté et est prévu pour dans le futur. Merci de votre compréhension`,
 				ephemeral: true
 			});
 		}
-	},
+	}
 
 };
