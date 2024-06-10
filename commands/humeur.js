@@ -20,10 +20,6 @@ module.exports = {
         const msg = interaction.options.getString('message')
         const humeur = interaction.options.getString('humeur')
         const vote = interaction.options.getInteger('vote')
-        if (humeur !== 'happy' && humeur !== 'neutral' && humeur !== 'sad') {
-            await interaction.reply({ content: 'Votre humeur doit être happy, neutral ou sad', ephemeral: true });
-            return;
-        }
         const buffer = await drawHumeur(msg,humeur)
         if (buffer === "urlError") {
             await interaction.reply({ content: 'L\'url de l\'image n\'est pas valide', ephemeral: true });
