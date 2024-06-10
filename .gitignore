@@ -105,5 +105,12 @@ dist
 
 db/
 database/
+test/
+
 moods.json
 temp.js
+
+test2.js
+moods-stats.json
+moods-chart.png
+test.js
