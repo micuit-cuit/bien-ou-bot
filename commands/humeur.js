@@ -5,21 +5,22 @@ module.exports = {
         .setName('humeur')
         .addStringOption(option =>
             option.setName('humeur')
-                .setDescription('Votre humeur, happy, neutral, sad ou une url d\'image (mal suporter)')
+                .setDescription('Votre humeur, happy, neutral, sad ou une url d\'image')
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('message')
                 .setDescription('Votre message')
                 .setRequired(true))
-        .addIntegerOption(option =>
-            option.setName('vote')
-                .setDescription('Votre vote')
-                .setRequired(true))
         .setDescription('Affiche votre humeur'),
     async execute(interaction) {
         const msg = interaction.options.getString('message')
         const humeur = interaction.options.getString('humeur')
-        const vote = interaction.options.getInteger('vote')
+        const vote = 0
+        //limite les url a qwant, google, discord, imgur
+        if (!humeur.match(/(happy|neutral|sad|https:\/\/s2.qwant.com|https:\/\/th.bing.com|https:\/\/cdn.discord.com|https:\/\/i.imgur.com)/)) {
+            await interaction.reply({ content: 'L\'url de l\'image n\'est pas valide, vous devez utiliser des image sur un des sites suivants: qwant, bing, discord, imgur', ephemeral: true });
+            return;
+        }
         const buffer = await drawHumeur(msg,humeur)
         if (buffer === "urlError") {
             await interaction.reply({ content: 'L\'url de l\'image n\'est pas valide', ephemeral: true });
