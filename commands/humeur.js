@@ -2,7 +2,7 @@ const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js');
 const drawHumeur = require('../src/generateImage.js')
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('ping')
+        .setName('humeur')
         .addStringOption(option =>
             option.setName('humeur')
                 .setDescription('Votre humeur, happy, neutral, sad')
