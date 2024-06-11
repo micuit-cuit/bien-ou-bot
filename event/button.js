@@ -14,7 +14,7 @@ module.exports = {
 
 		console.log(` ${interaction.user.tag} in #${interaction.channel.name} triggered an interaction: `,interaction.customId);
 		if (!interaction.isButton()) return;
-		if (interaction.customId.startsWith('button1')) {
+		if (interaction.customId.startsWith('moods')) {
 			const id = interaction.customId.split('--')[1];
 			if (id === 'demo') {
 				//verifie si l'utilisateur a déjà voté
@@ -53,7 +53,7 @@ module.exports = {
 										name: '🩷'
 									},
 									label: '×' + (parseInt(vote) + 1),
-									custom_id: 'button1--demo'
+									custom_id: 'moods--demo'
 								}
 							]
 						}
@@ -104,6 +104,7 @@ module.exports = {
 			modal.addComponents(emailRow, passwordRow);
 			await interaction.showModal(modal).catch(console.error);
 		}
+		
 	}
 
 };

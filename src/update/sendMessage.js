@@ -32,7 +32,7 @@ async function sendMessageMood(votedComments, dateString, type,channel) {
                                     name: '🩷'
                                 },
                                 label: '×' + comment.votes,
-                                custom_id: 'button1--' + comment.moodId
+                                custom_id: 'moods--' + comment.moodId
                             }
                         ]
                     }
@@ -73,7 +73,7 @@ async function sendMessageMood(votedComments, dateString, type,channel) {
                                         name: '🩷'
                                     },
                                     label: '×' + comment.votes,
-                                    custom_id: 'button1--' + comment.moodId
+                                    custom_id: 'moods--' + comment.moodId
                                 }
                             ]
                         }
