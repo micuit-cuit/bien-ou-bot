@@ -39,7 +39,6 @@ async function generateChart(moods){
     //     return dateA[0] - dateB[0] || dateA[1] - dateB[1] || dateA[2] - dateB[2]
     // });
     // moods.forEach((mood) => {
-    //     console.log(mood.date);
     // })
     const width = 1920;
     const height = 1080;

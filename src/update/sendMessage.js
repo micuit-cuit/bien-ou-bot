@@ -8,10 +8,8 @@ const dateString = new Date().toISOString().split('T')[0] //get the date in the 
 const db = DATABASE.load("comments--"+dateString);
 
 async function sendMessageMood(votedComments, dateString, type,channel) {
-    console.log('[file:sendMessage.js, ligne:11] ',votedComments)
     votedComments.forEach(async (comment) => {
         let verified = db.search({ "moodId": comment.moodId });
-        console.log('[file:sendMessage.js, ligne:14] ', verified)
         if (verified.length === 0) {
             db.add({ "votes": comment.votes, "moodId": comment.moodId });
             const buffer = await drawHumeur(comment.text, type);

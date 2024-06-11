@@ -38,7 +38,6 @@ function displayMood(moods,channel,statsMessage) {
     const dateString = new Date().toISOString().split('T')[0] //get the date in the format YYYY-MM-DD
 
     const mood = moods.find(mood => mood.day === dateString);
-    console.log('[file:init.js, ligne:41] ',mood)
     sendMessageMood(mood.moods.happy.votedComments,dateString, "happy",channel);
     sendMessageMood(mood.moods.neutral.votedComments,dateString, "neutral",channel);
     sendMessageMood(mood.moods.sad.votedComments,dateString, "sad",channel);

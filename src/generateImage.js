@@ -30,7 +30,6 @@ async function drawHumeur(humeur, type){
     let textWidth = ctx.measureText(text).width;
     //dessine le texte
     //si le texte est trop long (5 lignes) on le coupe et on met des ...
-    console.log(text.length)
     if (text.length > 140) {// 35*5 = 175
         text = text.substring(0, 140-3);
         text += '...';
@@ -43,9 +42,7 @@ async function drawHumeur(humeur, type){
         ctx.fillText(line, 175, y);
         y += space;
     }
-    console.log(lines)
     const buffer = canvas.toBuffer('image/png');
-    console.log("image généré")
     return buffer;
 }
 function splitTextByLength(texte, tailleMax) {
