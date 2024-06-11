@@ -41,7 +41,17 @@ async function sendMessageMood(votedComments, dateString, type,channel) {
                 //update the button
                 const buffer = await drawHumeur(comment.text, type);
                 const attachment = new AttachmentBuilder(buffer, 'profile-image.png');
-                const msg = await channel.messages.fetch(verified[0].messageId);
+                if (verified[0].messageId === "deleted") return
+                if (verified[0].messageId === undefined) return
+                if (verified.length === 0) return
+                let msg 
+                try {
+                    msg = await channel.messages.fetch(verified[0].messageId);
+                }
+                catch (e) {
+                    db.update({ "moodId": comment.moodId }, { "messageId": "deleted" });
+                    return
+                }
                 await msg.edit({
                     files: [attachment],
                     components: [
