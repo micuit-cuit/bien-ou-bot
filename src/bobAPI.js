@@ -27,7 +27,6 @@ function bobRequette({ action = "get", collection = undefined, body = undefined,
 function login(username, password, callback = () => { }) {
     bobRequette({
         action: "login", body: { username, password }, controller: "auth", callback: (data) => {
-            console.log(data)
             token = data.result.jwt;
             setTimeout(() => {
                 login(username, password)
@@ -39,8 +38,7 @@ function login(username, password, callback = () => { }) {
 function tempLogin(username, password, callback = () => { }) {
     bobRequette({
         action: "login", body: { username, password }, controller: "auth", callback: (data) => {
-            console.log(data)
-            token = data.result.jwt;
+            token = data.result?.jwt;
             callback(token, data.result);
         }
     });
