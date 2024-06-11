@@ -14,6 +14,10 @@ async function sendMessageMood(votedComments, dateString, type,channel) {
         if (verified.length === 0) {
             db.add({ "votes": comment.votes, "moodId": comment.moodId });
             const buffer = await drawHumeur(comment.text, type);
+            if (typeof buffer === 'string') {
+                console.log('error, image not found at sendMessage on line 18')
+                return;
+            }
             const attachment = new AttachmentBuilder(buffer, 'profile-image.png');
             const msg = await channel.send({
                 files: [attachment],
@@ -40,12 +44,16 @@ async function sendMessageMood(votedComments, dateString, type,channel) {
             if(dbVote !== comment.votes){
                 //update the button
                 const buffer = await drawHumeur(comment.text, type);
-                const attachment = new AttachmentBuilder(buffer, 'profile-image.png');
+                if (typeof buffer === 'string') {
+                    console.log('error, image not found at sendMessage on line 48')
+                    return;
+                }
                 if (verified[0].messageId === "deleted") return
                 if (verified[0].messageId === undefined) return
                 if (verified.length === 0) return
-                let msg 
+                let msg ,attachment;
                 try {
+                    attachment = new AttachmentBuilder(buffer, 'profile-image.png');
                     msg = await channel.messages.fetch(verified[0].messageId);
                 }
                 catch (e) {
