@@ -20,8 +20,20 @@ module.exports.run = async (client) => {
     const statsChannelID = process.env.DISCORD_STATS_CHANNEL;
     const statsMessageID = process.env.DISCORD_STATS_MESSAGE;
     const statsChannel = await client.channels.fetch(statsChannelID);
-    const statsMessage = await statsChannel.messages.fetch(statsMessageID);
 
+    let statsMessage 
+    try {
+        statsMessage = await statsChannel.messages.fetch(statsMessageID);
+    }
+    catch (e) {
+        statsMessage = undefined
+    }
+    //si le message n'existe pas ou n'est pas a nous
+    if (statsMessage === undefined || statsMessage.author.id !== client.user.id) {
+        statsMessage = await statsChannel.send("Initialisation du graphique");
+        console.error("Le message de stats a été réinitialisé, veillez à mettre à jour le fichier .env, voila le nouvelle ID: "+statsMessage.id)
+        process.exit(1)
+    }
     login(username, password, async (token) => {
         //get moods from bob API
         getMoods(async (moods) => {
@@ -93,9 +105,12 @@ function displayMood(moods,channel,statsMessage) {
                     text: "il y a "+ mood.moods.happy.count + " personne hereuse"
                 })
                 .setTimestamp();
-
-                statsMessage.edit({ embeds: [embed], files: [attachment], content: " " }) // Remarquez que content est mis à " "
-                    .catch(console.error);
+                try {
+                    statsMessage.edit({ embeds: [embed], files: [attachment] }) // Remarquez que content est mis à " "
+                }
+                catch(e){
+                    console.error("Impossible de mettre à jour le message de stats")
+                }
             })
 };
 
