@@ -1,8 +1,10 @@
-const { Events } = require('discord.js');
+const {  ActionRowBuilder, Events, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder } = require('discord.js');
 const database = require('../src/db');
 const path = require('path');
 const DATABASE = new database(path.join(__dirname, "../db"));
 const dbVote = DATABASE.load("custom-buttons-votes");
+const dbUser = DATABASE.load("users");
+
 dbVote.saveData();
 module.exports = {
 	name: Events.InteractionCreate,
@@ -27,7 +29,7 @@ module.exports = {
 					await interaction.reply({ 
 						content: `Vous avez déjà voté pour ce message`,
 						ephemeral: true
-					});
+					}).catch(console.error);
 					return;
 				}
 				//ajoute l'utilisateur au vote
@@ -56,13 +58,51 @@ module.exports = {
 							]
 						}
 					]
-				});
+				}).catch(console.error);
 				return;
 			}
 			await interaction.reply({ 
 				content: `le système de vote et de liaison discord>bob n'est pas encore implémenté et est prévu pour dans le futur. Merci de votre compréhension`,
 				ephemeral: true
-			});
+			}).catch(console.error);
+		}
+		if (interaction.customId === 'login') {
+			//verifie si l'utilisateur est déjà connecté
+			const user = interaction.user.id;
+			let userExist = dbUser.search({ "discordId": user});
+			if (userExist.length !== 0) {
+				const embed = new EmbedBuilder()
+					.setTitle("erreur")
+					.setDescription("vous êtes déjà connecté")
+					.setColor("#ff0000");
+				await interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+				return;
+			}
+			const modal = new ModalBuilder()
+				.setCustomId('loginModal')
+				.setTitle('Page de connexion')
+				const email = new TextInputBuilder()
+				.setCustomId('email')
+				// The label is the prompt the user sees for this input
+				.setLabel("Veuillez entrer votre email")
+				// Short means only a single line of text
+				.setStyle(TextInputStyle.Short);
+	
+			const password = new TextInputBuilder()
+				.setCustomId('password')
+				.setLabel("Veuillez entrer votre mot de passe")
+				// Paragraph means multiple lines of text.
+				.setStyle(TextInputStyle.Short);
+
+	
+			// An action row only holds one text input,
+			// so you need one action row per text input.
+			const emailRow = new ActionRowBuilder().addComponents(email);
+			const passwordRow = new ActionRowBuilder().addComponents(password);
+	
+			// Add inputs to the modal
+			modal.addComponents(emailRow, passwordRow);
+			await interaction.showModal(modal).catch(console.error);
 		}
 	}
 
