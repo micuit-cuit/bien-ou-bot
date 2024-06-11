@@ -50,6 +50,7 @@ async function sendMessageMood(votedComments, dateString, type,channel) {
                 }
                 catch (e) {
                     db.update({ "moodId": comment.moodId }, { "messageId": "deleted" });
+                    console.error("message deleted")
                     return
                 }
                 await msg.edit({
