@@ -104,7 +104,52 @@ module.exports = {
 			modal.addComponents(emailRow, passwordRow);
 			await interaction.showModal(modal).catch(console.error);
 		}
-		
+		if (interaction.customId === 'deleteAccount') {
+			const user = interaction.user.id;
+			let userExist = dbUser.search({ "userID": user});
+			if (userExist.length === 0) {
+				const embed = new EmbedBuilder()
+					.setTitle("erreur")
+					.setDescription("vous n'êtes pas connecté")
+					.setColor("#ff0000");
+				await interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+				return;
+			}
+			const embed = new EmbedBuilder()
+				.setTitle("vérfication de suppression")
+				.setDescription("attention, cette action est irréversible. Êtes-vous sûr de vouloir supprimer votre compte ? (" + userExist[0].email + ")")
+				.setColor("#ff0000");
+			const confirm = {
+				type: 1,
+				components: [
+					{
+						type: 2,
+						style: 4,
+						label: "confirmer",
+						custom_id: "confirmDelete"
+					}
+				]
+			}
+			await interaction.reply({ embeds: [embed], components: [confirm] , ephemeral: true}).catch(console.error);
+		}
+		if (interaction.customId === 'confirmDelete') {
+			const user = interaction.user.id;
+			let userExist = dbUser.search({ "userID": user});
+			if (userExist.length === 0) {
+				const embed = new EmbedBuilder()
+					.setTitle("erreur")
+					.setDescription("vous n'êtes pas connecté")
+					.setColor("#ff0000");
+				await interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+				return;
+			}
+			dbUser.remove({ "userID": user});
+			const embed = new EmbedBuilder()
+				.setTitle("compte supprimé")
+				.setDescription("votre compte a bien été supprimé")
+				.setColor("#ff0000");
+			await interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+		}
 	}
 
 };
