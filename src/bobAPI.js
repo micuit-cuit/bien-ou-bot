@@ -1,9 +1,11 @@
-function bobRequette({ action = "get", collection = undefined, body = undefined, id = undefined, index = undefined, controller, token = undefined, strategy = "local", authorization = undefined, callback = () => { } }) {
+function bobRequette({ action = "get", collection = undefined, body = undefined, id = undefined, index = undefined, controller, token = undefined ,groupId = undefined,moodId=undefined, strategy = "local", authorization = undefined, callback = () => { } }) {
     const jwt = token;
     const jsonData = {
         action,
         collection,
         body,
+        groupId,
+        moodId,
         controller,
         _id: id,
         jwt,
@@ -50,9 +52,22 @@ function getMoods(callback) {
         }
     })
 }
+function voteMood(moodId, groupId, action, token, callback) {
+    bobRequette({
+        action,
+        collection: "",
+        controller: "mood",
+        moodId,
+        groupId,
+        token,
+        callback
+    });
+}
+
 module.exports = {
     bobRequette,
     login,
     tempLogin,
-    getMoods
+    getMoods,
+    voteMood
 }

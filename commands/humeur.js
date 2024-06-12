@@ -42,7 +42,7 @@ module.exports = {
                                 name: '🩷'
                             },
                             label: '×'+vote,
-                            custom_id: 'button1--demo'
+                            custom_id: 'moods--demo'
                         }
                     ]
                 }

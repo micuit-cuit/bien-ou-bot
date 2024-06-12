@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const database = require('../src/db');
 const path = require('path');
-const { login } = require('../src/bobAPI');
 const DATABASE = new database(path.join(__dirname, "../db"));
 const db = DATABASE.load("users");
 
