@@ -64,6 +64,8 @@ module.exports = {
 				}).catch(console.error);
 				return;
 			}
+			const moodID = id;
+
 			//verifie si l'utilisateur est déjà connecté
 			const user = interaction.user.id;
 			let userExist = dbUser.search({ "userID": user});
@@ -76,9 +78,8 @@ module.exports = {
 				return;
 			}
 
-			const moodID = id;
-			//login l'utilisateur
-			//decode le password
+			//verifie si le conte de l'utilisateur marche et conete le.
+			//decrypte le mot de passe
 			const salt = process.env.SALT;
 			const email = userExist[0].email;
 			const iv = Buffer.from(userExist[0].passwordEncrypted.split(':')[0], 'hex');
@@ -87,8 +88,9 @@ module.exports = {
 			const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
 			let decrypted = decipher.update(encrypted, 'hex', 'utf8');
 			const password = decrypted;
-			console.log("email: " + email + " password: " + password);
+			//login l'utilisateur
 			tempLogin(email, password, async (token) => {
+				//test si la connexion a echoué et envoie un message d'erreur
 				if (!token) {
 					const embed = new EmbedBuilder()
 						.setTitle("erreur")
@@ -99,10 +101,9 @@ module.exports = {
 				}
 				//verifie si l'utilisateur a déjà voté
 				if (userExist[0].votes.includes(moodID)) {
-					//unvote
-					//enleve 1 au conteur
-					//update le message
+					//supprime le vote de l'utilisateur
 					voteMood(moodID, "cNY0t40BBT2uGxRqaH3l", "unvote", token ,async (data) => {
+						//test si une erreur est survenue
 						if (data.error != undefined) {
 							const embed = new EmbedBuilder()
 								.setTitle("erreur")
@@ -112,9 +113,10 @@ module.exports = {
 							console.log(data);
 							return;
 						}
+						//supprime le vote de l'utilisateur de la base de donnée
 						let userVoteUpdate = userExist[0].votes.filter((vote) => vote !== moodID);
 						dbUser.update({ "userID": user }, { "votes": userVoteUpdate });
-
+						//enleve 1 au conteur et update le message, envoie un message de confirmation
 						let components = interaction.message.components[0].components[0];
 						let vote = components.label.split('×')[1];
 						await interaction.update({
@@ -151,7 +153,7 @@ module.exports = {
 					//ajoute l'utilisateur au vote
 					let userVoteUpdate = userExist[0].votes
 					userVoteUpdate.push(moodID);
-					//vote
+					//ajoute le vote
 					voteMood(moodID, "cNY0t40BBT2uGxRqaH3l", "vote", token ,async (data) => {
 						if (data.error != undefined) {
 							const embed = new EmbedBuilder()
@@ -162,11 +164,9 @@ module.exports = {
 							console.log(data);
 							return;
 						}
-
+						//ajoute le vote de l'utilisateur a la base de donnée
 						dbUser.update({ "userID": user }, { "votes": userVoteUpdate });
-
-						//ajoute 1 au conteur
-						//update le message
+						//ajoute 1 au conteur et update le message, envoie un message de confirmation
 						let components = interaction.message.components[0].components[0];
 						let vote = components.label.split('×')[1];
 						await interaction.update({
