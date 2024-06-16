@@ -1,9 +1,11 @@
-function bobRequette({ action = "get", collection = undefined, body = undefined, id = undefined, index = undefined, controller, token = undefined, strategy = "local", authorization = undefined, callback = () => { } }) {
+function bobRequette({ action = "get", collection = undefined, body = undefined, id = undefined, index = undefined, controller, token = undefined ,groupId = undefined,moodId=undefined, strategy = "local", authorization = undefined, callback = () => { } }) {
     const jwt = token;
     const jsonData = {
         action,
         collection,
         body,
+        groupId,
+        moodId,
         controller,
         _id: id,
         jwt,
@@ -35,6 +37,14 @@ function login(username, password, callback = () => { }) {
         }
     });
 }
+function tempLogin(username, password, callback = () => { }) {
+    bobRequette({
+        action: "login", body: { username, password }, controller: "auth", callback: (data) => {
+            token = data.result?.jwt;
+            callback(token, data.result);
+        }
+    });
+}
 function getMoods(callback) {
     bobRequette({
         action: "get", collection: "daily_moodsgroup", controller: "document", index: "bob", token, id: "cNY0t40BBT2uGxRqaH3l", callback: (data) => {
@@ -42,8 +52,22 @@ function getMoods(callback) {
         }
     })
 }
+function voteMood(moodId, groupId, action, token, callback) {
+    bobRequette({
+        action,//"vote" or "unvote"
+        collection: "",
+        controller: "mood",
+        moodId,
+        groupId,
+        token,
+        callback
+    });
+}
+
 module.exports = {
     bobRequette,
     login,
-    getMoods
+    tempLogin,
+    getMoods,
+    voteMood
 }

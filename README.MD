@@ -1,0 +1,1 @@
+main color: `#f9c405`
