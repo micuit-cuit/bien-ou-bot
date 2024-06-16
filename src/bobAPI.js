@@ -54,7 +54,7 @@ function getMoods(callback) {
 }
 function voteMood(moodId, groupId, action, token, callback) {
     bobRequette({
-        action,
+        action,//"vote" or "unvote"
         collection: "",
         controller: "mood",
         moodId,

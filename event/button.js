@@ -1,11 +1,14 @@
 const {  ActionRowBuilder, Events, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder } = require('discord.js');
 const database = require('../src/db');
 const path = require('path');
+const { tempLogin, voteMood } = require('../src/bobAPI');
+const crypto = require('crypto');
+
 const DATABASE = new database(path.join(__dirname, "../db"));
-const dbVote = DATABASE.load("custom-buttons-votes");
+const dbVoteDemo = DATABASE.load("custom-buttons-votes");
 const dbUser = DATABASE.load("users");
 
-dbVote.saveData();
+dbVoteDemo.saveData();
 module.exports = {
 	name: Events.InteractionCreate,
 	once: false,
@@ -20,10 +23,10 @@ module.exports = {
 				//verifie si l'utilisateur a déjà voté
 				const message = interaction.message.id;
 				const user = interaction.user.id;
-				let userVote = dbVote.search({ "messageId": message});
+				let userVote = dbVoteDemo.search({ "messageId": message});
 				if (userVote.length == 0) {
-					dbVote.add({ "messageId": message, "votes": []});
-					userVote = dbVote.search({ "messageId": message});
+					dbVoteDemo.add({ "messageId": message, "votes": []});
+					userVote = dbVoteDemo.search({ "messageId": message});
 				}
 				if (userVote[0].votes.includes(user)) {
 					await interaction.reply({ 
@@ -35,7 +38,7 @@ module.exports = {
 				//ajoute l'utilisateur au vote
 				let userVoteUpdate = userVote[0].votes
 				userVoteUpdate.push(user);
-				dbVote.update({ "messageId": message }, { "votes": userVoteUpdate });
+				dbVoteDemo.update({ "messageId": message }, { "votes": userVoteUpdate });
 				
 				//ajoute 1 au conteur
 				//update le message
@@ -61,10 +64,143 @@ module.exports = {
 				}).catch(console.error);
 				return;
 			}
-			await interaction.reply({ 
-				content: `le système de vote et de liaison discord>bob n'est pas encore implémenté et est prévu pour dans le futur. Merci de votre compréhension`,
-				ephemeral: true
-			}).catch(console.error);
+			//verifie si l'utilisateur est déjà connecté
+			const user = interaction.user.id;
+			let userExist = dbUser.search({ "userID": user});
+			if (userExist.length === 0) {
+				const embed = new EmbedBuilder()
+					.setTitle("erreur")
+					.setDescription("vous n'êtes pas connecté, faites /login pour vous connecter")
+					.setColor("#ff0000");
+				await interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+				return;
+			}
+
+			const moodID = id;
+			//login l'utilisateur
+			//decode le password
+			const salt = process.env.SALT;
+			const email = userExist[0].email;
+			const iv = Buffer.from(userExist[0].passwordEncrypted.split(':')[0], 'hex');
+			const encrypted = userExist[0].passwordEncrypted.split(':')[1];
+			const key = crypto.scryptSync(email + salt, 'salt', 32); // Génère une clé de 32 bytes
+			const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+			let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+			const password = decrypted;
+			console.log("email: " + email + " password: " + password);
+			tempLogin(email, password, async (token) => {
+				if (!token) {
+					const embed = new EmbedBuilder()
+						.setTitle("erreur")
+						.setDescription("connexion echoué, verifier vos identifiants")
+						.setColor("#ff0000");
+					interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+					return;
+				}
+				//verifie si l'utilisateur a déjà voté
+				if (userExist[0].votes.includes(moodID)) {
+					//unvote
+					//enleve 1 au conteur
+					//update le message
+					voteMood(moodID, "cNY0t40BBT2uGxRqaH3l", "unvote", token ,async (data) => {
+						if (data.error != undefined) {
+							const embed = new EmbedBuilder()
+								.setTitle("erreur")
+								.setDescription("une erreur est survenue lors de la suppression de votre vote")
+								.setColor("#ff0000");
+							await interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+							console.log(data);
+							return;
+						}
+						let userVoteUpdate = userExist[0].votes.filter((vote) => vote !== moodID);
+						dbUser.update({ "userID": user }, { "votes": userVoteUpdate });
+
+						let components = interaction.message.components[0].components[0];
+						let vote = components.label.split('×')[1];
+						await interaction.update({
+							components: [
+								{
+									type: 1,
+									components: [
+										{
+											type: 2,
+											style: 4,
+											emoji: {
+												name: '🩷'
+											},
+											label: '×' + (parseInt(vote) - 1),
+											custom_id: 'moods--' + moodID
+										}
+									]
+								}
+							]
+						}).catch(console.error);
+						const channel = interaction.channel;
+						//envoie un message de confirmation
+						const embed = new EmbedBuilder()
+							.setTitle("vote supprimé")
+							.setDescription("votre vote a bien été supprimé")
+							.setColor("#f9c405");
+						const replyMsg = await channel.send({ embeds: [embed], content: "<@" + user + ">",ephemeral: true}).catch(console.error);
+						setTimeout(() => {
+							replyMsg.delete();
+						}, 5000);					
+						return;
+				});
+				}else{
+					//ajoute l'utilisateur au vote
+					let userVoteUpdate = userExist[0].votes
+					userVoteUpdate.push(moodID);
+					//vote
+					voteMood(moodID, "cNY0t40BBT2uGxRqaH3l", "vote", token ,async (data) => {
+						if (data.error != undefined) {
+							const embed = new EmbedBuilder()
+								.setTitle("erreur")
+								.setDescription("une erreur est survenue lors de l'ajout de votre vote")
+								.setColor("#ff0000");
+							await interaction.reply({ embeds: [embed] , ephemeral: true}).catch(console.error);
+							console.log(data);
+							return;
+						}
+
+						dbUser.update({ "userID": user }, { "votes": userVoteUpdate });
+
+						//ajoute 1 au conteur
+						//update le message
+						let components = interaction.message.components[0].components[0];
+						let vote = components.label.split('×')[1];
+						await interaction.update({
+							components: [
+								{
+									type: 1,
+									components: [
+										{
+											type: 2,
+											style: 4,
+											emoji: {
+												name: '🩷'
+											},
+											label: '×' + (parseInt(vote) + 1),
+											custom_id: 'moods--' + moodID
+										}
+									]
+								}
+							]
+						}).catch(console.error);
+						const channel = interaction.channel;
+						//envoie un message de confirmation
+						const embed = new EmbedBuilder()
+							.setTitle("vote ajouté")
+							.setDescription("votre vote a bien été ajouté")
+							.setColor("#f9c405");
+						const replyMsg = await channel.send({ embeds: [embed], content: "<@" + user + ">",ephemeral: true}).catch(console.error);
+						setTimeout(() => {
+							replyMsg.delete();
+						}, 5000);
+					});
+				}
+			});
+			
 		}
 		if (interaction.customId === 'login') {
 			//verifie si l'utilisateur est déjà connecté
