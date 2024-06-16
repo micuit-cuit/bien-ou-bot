@@ -43,7 +43,7 @@ module.exports = {
                     encrypted += cipher.final('hex');
                     let passwordEncrypted = iv.toString('hex') + ':' + encrypted;
                     //ajoute l'utilisateur a la base de donnée
-                    dbUser.add({ "userID": interaction.user.id, "email": email, "passwordEncrypted": passwordEncrypted});
+                    dbUser.add({ "userID": interaction.user.id, "email": email, "passwordEncrypted": passwordEncrypted, "votes": [] });
                 }catch(e){
                     //si une erreur survient
                     console.log(e);
