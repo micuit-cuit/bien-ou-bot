@@ -26,6 +26,9 @@ class Collection {
     constructor(collectionPath) {
         this.collectionPath = collectionPath;
         this.data = this.loadData();
+        fs.watchFile(this.collectionPath, () => {
+            this.data = this.loadData();
+        });
     }
 
     loadData() {
